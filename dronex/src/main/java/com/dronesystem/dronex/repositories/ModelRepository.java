@@ -13,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Sabi Employee
  */
 public interface ModelRepository extends JpaRepository<Model, Long> {
-    
+    public Model findByName(String Name);
 }

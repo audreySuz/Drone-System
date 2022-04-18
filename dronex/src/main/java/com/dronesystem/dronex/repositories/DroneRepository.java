@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Sabi Employee
  */
 public interface DroneRepository extends JpaRepository<Drone, Long> {
-    
+    public Drone findBySerialNumber(String serialNumber);
 }

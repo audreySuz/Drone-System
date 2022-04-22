@@ -1,8 +1,10 @@
 package com.dronesystem.dronex.services;
 
 import com.dronesystem.dronex.entities.Drone;
+import com.dronesystem.dronex.entities.Medication;
 import com.dronesystem.dronex.entities.Model;
 import com.dronesystem.dronex.repositories.DroneRepository;
+import com.dronesystem.dronex.repositories.MedicationRepository;
 import com.dronesystem.dronex.repositories.ModelRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class DroneService {
 
     private final DroneRepository droneRepository;
     private final ModelRepository modelRepository;
+    private final MedicationRepository medicationRepository;
 
     public Model createModel(Model model) {
         Model exModel = modelRepository.findByName(model.getName());
@@ -50,4 +53,25 @@ public class DroneService {
         }
     }
 
+
+    public Drone loadDrone(Medication medication, String serialNumber) {
+        Drone newDrone;
+        Drone drone = droneRepository.findBySerialNumber(serialNumber);
+        int totalWeightOfMeds = drone.getMedications()
+                .stream()
+                .mapToInt(med -> med.getWeight())
+                .sum();
+        if (drone != null || drone.getDroneState() == Drone.DroneState.IDLE || drone.getDroneState() == Drone.DroneState.LOADING) {
+            if (totalWeightOfMeds + medication.getWeight() <= drone.getModel().getWeightLimit()) {
+                medication.setDrone(drone);
+                drone.getMedications().add(medication);
+                newDrone = droneRepository.save(drone);
+            } else {
+                throw new RuntimeException("Medication too heavy!");
+            }
+        } else {
+            throw new RuntimeException("Drone Unavailable");
+        }
+        return newDrone;
+    }
 }

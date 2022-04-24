@@ -6,7 +6,7 @@ import com.dronesystem.dronex.dtos.RegisterDroneRequest;
 import com.dronesystem.dronex.entities.Drone;
 import com.dronesystem.dronex.entities.Medication;
 import com.dronesystem.dronex.entities.Model;
-import com.dronesystem.dronex.services.DroneService;
+import com.dronesystem.dronex.services.impl.DroneServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DroneController {
 
-    private final DroneService droneService;
+    private final DroneServiceImpl droneService;
 
     @PostMapping("/model")
     public ResponseEntity<Model> createModel(@RequestBody Model model) {

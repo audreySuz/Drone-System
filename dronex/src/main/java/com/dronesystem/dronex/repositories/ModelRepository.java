@@ -5,6 +5,7 @@
 package com.dronesystem.dronex.repositories;
 
 import com.dronesystem.dronex.entities.Model;
+import java.util.Optional;
 import javax.persistence.Id;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,5 +14,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Sabi Employee
  */
 public interface ModelRepository extends JpaRepository<Model, Long> {
-    public Model findByName(String Name);
+    public Optional<Model> findByName(String Name);
+    public Optional<Model>findByWeightLimit(int WeightLimit);
 }

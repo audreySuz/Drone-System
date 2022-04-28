@@ -37,6 +37,10 @@ public class Medication implements Serializable {
 
     @Column
     private int weight;
+    
+    
+    @Column(columnDefinition = "text" , name="base64Image")
+    private String image;
 
     @ManyToOne
     @JoinColumn(name="drone_id")
@@ -90,6 +94,20 @@ public class Medication implements Serializable {
      */
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    /**
+     * @return the image
+     */
+    public String getImage() {
+        return image;
+    }
+
+    /**
+     * @param image the image to set
+     */
+    public void setImage(String image) {
+        this.image = image;
     }
 
     /**

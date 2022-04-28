@@ -30,7 +30,7 @@ A Delivery system that transports medications using Drones.
 - image
 
 # Installation guide
-- Clone this repository-- git clone 
+- Clone this repository-- git clone https://github.com/audreySuz/Drone-System.git
 - Enter npm install in terminal.
 - Then, enter again npm run dev to run the app on dev.
 

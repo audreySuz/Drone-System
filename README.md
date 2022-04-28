@@ -16,15 +16,15 @@ Dronex is a Delivery system that transports medications using Drones.
 
 # ❗ Dependencies
 To run this project, you will need of following tools installed on your machine:
-Java & Kit
-IntelliJ IDEA/ Apache NetBeans 
-Maven-
-  DevTools
-  Data JPA
-  Spring Web
-  Swagger 3.0
-  H2 Database
-Postman
+- Java & Kit
+- IntelliJ IDEA/ Apache NetBeans 
+- Maven-
+   ' DevTools
+   ' Data JPA
+   ' Spring Web
+   ' Swagger 3.0
+   ' H2 Database
+- Postman
 
 # Database configuration
 In its default configuration, Dronex uses an in-memory database (H2) which

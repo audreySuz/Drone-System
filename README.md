@@ -59,5 +59,12 @@ the model, the view, and the controllers
 - Enter npm install in terminal.
 - Then, enter again npm run dev to run the app on dev.
 
+# PostMan Documentation
+Documentation on Apis a provided in the link https://documenter.getpostman.com/view/19411942/UyrEiFXV.
+Click on link or copy into browser. 
+On the right top of the webpage. 
+click on run in post man. 
+Import into your postman workspace and test.
+
 # Swagger documentation UI
 ![image](https://user-images.githubusercontent.com/88780929/165786242-4d035c16-1ebe-405e-af47-3fe2e534068a.png)

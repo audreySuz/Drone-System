@@ -69,7 +69,7 @@ public class preLoadDBService {
         droneRepository.save(drone2);
 
         drone3.setBatteryLevel(100);
-        drone3.setDroneState(Drone.DroneState.IDLE);
+        drone3.setDroneState(Drone.DroneState.LOADING);
         drone3.setModel(modelRepository.findByWeightLimit(200).get());
         drone3.setSerialNumber("738364323950P");
         droneRepository.save(drone3);
@@ -81,7 +81,7 @@ public class preLoadDBService {
         droneRepository.save(drone4);
 
         drone5.setBatteryLevel(95);
-        drone5.setDroneState(Drone.DroneState.IDLE);
+        drone5.setDroneState(Drone.DroneState.DELIVERED);
         drone5.setModel(modelRepository.findByWeightLimit(200).get());
         drone5.setSerialNumber("765445678K");
         droneRepository.save(drone5);
@@ -93,7 +93,7 @@ public class preLoadDBService {
         droneRepository.save(drone6);
 
         drone7.setBatteryLevel(50);
-        drone7.setDroneState(Drone.DroneState.IDLE);
+        drone7.setDroneState(Drone.DroneState.LOADED);
         drone7.setModel(modelRepository.findByWeightLimit(500).get());
         drone7.setSerialNumber("098345670P");
         droneRepository.save(drone7);
@@ -105,7 +105,7 @@ public class preLoadDBService {
         droneRepository.save(drone8);
 
         drone9.setBatteryLevel(100);
-        drone9.setDroneState(Drone.DroneState.IDLE);
+        drone9.setDroneState(Drone.DroneState.DELIVERING);
         drone9.setModel(modelRepository.findByWeightLimit(300).get());
         drone9.setSerialNumber("98765434GH");
         droneRepository.save(drone9);

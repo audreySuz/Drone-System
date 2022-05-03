@@ -8,33 +8,34 @@ import com.dronesystem.dronex.repositories.DroneRepository;
 import com.dronesystem.dronex.repositories.MedicationRepository;
 import com.dronesystem.dronex.repositories.ModelRepository;
 import com.dronesystem.dronex.responses.CustomResponse;
-import java.util.List;
+import java.util.*;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.dronesystem.dronex.services.DroneService;
 import com.dronesystem.dronex.utils.ValidationUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
+
 import javax.persistence.EntityNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- *
  * @author Sabi Employee
  */
 @Service
 @AllArgsConstructor
 public class DroneServiceImpl implements DroneService {
 
+    private static final Set<Drone.DroneState> DRONE_STATES = Collections.unmodifiableSet(EnumSet.of(Drone.DroneState.IDLE, Drone.DroneState.LOADING));
     private final DroneRepository droneRepository;
     private final ModelRepository modelRepository;
     private final MedicationRepository medicationRepository;
     private final ValidationUtil validationUtil;
-    private final ObjectMapper objectMapper;
 
     @Override
-    public CustomResponse< Model> createModel(Model model) throws Exception {
+    public CustomResponse<Model> createModel(Model model) throws Exception {
         model.setName(validationUtil.formatString(model.getName()));
         if (modelRepository.findByName(model.getName()).isPresent()) {
             throw new Exception("Model already exists");
@@ -52,8 +53,8 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public CustomResponse< Drone> registerDrone(String serialNumber, String model) {
-           model=validationUtil.formatString(model);
+    public CustomResponse<Drone> registerDrone(String serialNumber, String model) {
+        model = validationUtil.formatString(model);
         if (modelRepository.findByName(model).isEmpty()) {
             throw new EntityNotFoundException("Model does not exists");
         }
@@ -73,7 +74,7 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-     public CustomResponse<Drone> loadDrone (Medication medication, String serialNumber) throws Exception {
+    public CustomResponse<Drone> loadDrone(Medication medication, String serialNumber) {
         Drone newDrone;
         Drone drone = droneRepository.findBySerialNumber(serialNumber).get();
         if (medicationRepository.findByCode(medication.getCode()).isPresent()) {
@@ -89,17 +90,18 @@ public class DroneServiceImpl implements DroneService {
         if (!validationUtil.validateMedicationName(medication.getName())) {
             throw new BadRequestException("Invalid medication name! (allowed only letters, numbers, ‘-‘, ‘_’)");
         }
-
-        if (droneRepository.findBySerialNumber(serialNumber).isPresent() || drone.getDroneState() == Drone.DroneState.IDLE
-                || drone.getDroneState() == Drone.DroneState.LOADING
-                || drone.getBatteryLevel() > 25) {
-            if (totalWeightOfMeds + medication.getWeight() <= drone.getModel().getWeightLimit()) {
-                medication.setDrone(drone);
-                drone.getMedications().add(medication);
-                drone.setDroneState(Drone.DroneState.LOADING);
-                newDrone = droneRepository.save(drone);
+        if (droneRepository.findBySerialNumber(serialNumber).isPresent() && DRONE_STATES.contains(drone.getDroneState())) {
+            if (drone.getBatteryLevel() > 25) {
+                if (totalWeightOfMeds + medication.getWeight() <= drone.getModel().getWeightLimit()) {
+                    medication.setDrone(drone);
+                    drone.getMedications().add(medication);
+                    drone.setDroneState(Drone.DroneState.LOADING);
+                    newDrone = droneRepository.save(drone);
+                } else {
+                    throw new RuntimeException("Medication too heavy!");
+                }
             } else {
-                throw new RuntimeException("Medication too heavy!");
+                throw new RuntimeException("Battery Low!");
             }
         } else {
             throw new RuntimeException("Drone Unavailable");
@@ -110,15 +112,15 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public CustomResponse< List<Medication>> getDroneMedications(String serialNumber) {
+    public CustomResponse<List<Medication>> getDroneMedications(String serialNumber) {
         Drone drone = droneRepository.findBySerialNumber(serialNumber).get();
         if (drone == null) {
             throw new RuntimeException("Invalid Serial Number!");
         }
-        if (drone.getDroneState() == Drone.DroneState.DELIVERED
-                || drone.getDroneState() == Drone.DroneState.DELIVERING
-                || drone.getDroneState() == Drone.DroneState.RETURNING
-               ) {
+        if (!(drone.getDroneState() != Drone.DroneState.DELIVERED
+                && drone.getDroneState() != Drone.DroneState.DELIVERING
+                && drone.getDroneState() != Drone.DroneState.RETURNING)
+        ) {
             throw new RuntimeException("No Medications on this drone ");
         } else {
             return new CustomResponse.CustomResponseBuilder<List<Medication>>().withCode("200")
@@ -128,7 +130,7 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public CustomResponse< List<Drone>> getAvailableDrones() {
+    public CustomResponse<List<Drone>> getAvailableDrones() {
         List<Drone> drones = droneRepository.findByDroneStateIn(List.of(Drone.DroneState.IDLE, Drone.DroneState.LOADING));
         return new CustomResponse.CustomResponseBuilder<List<Drone>>().withCode("200")
                 .withMessage("Drones retrieved successfully").withStatus(HttpStatus.OK).withTimestamp(new Date())
@@ -136,11 +138,11 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public CustomResponse< Integer> getBatteryLevel(String serialNumber) {
+    public CustomResponse<Integer> getBatteryLevel(String serialNumber) {
 
         Drone drone = droneRepository.findBySerialNumber(serialNumber).get();
         if (droneRepository.findBySerialNumber(serialNumber).isEmpty()) {
-            throw new InternalError("Invalid Serial Number!"); 
+            throw new InternalError("Invalid Serial Number!");
         }
         return new CustomResponse.CustomResponseBuilder<Integer>().withCode("200")
                 .withMessage("Battery Level is: " + drone.getBatteryLevel()).withStatus(HttpStatus.OK).withTimestamp(new Date())
@@ -148,12 +150,12 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public CustomResponse< String> updateDroneState(String serialNumber, String State) {
+    public CustomResponse<String> updateDroneState(String serialNumber, String State) {
         Drone drone = droneRepository.findBySerialNumber(serialNumber).get();
         drone.setDroneState(Drone.DroneState.valueOf(State));
         return new CustomResponse.CustomResponseBuilder<String>().withCode("200")
                 .withMessage("State changed successfully").withStatus(HttpStatus.OK).withTimestamp(new Date())
                 .withData(drone.getDroneState().toString()).build();
-
     }
+
 }
